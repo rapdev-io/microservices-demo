@@ -3,9 +3,8 @@
 
 on:
   push:
-    paths:
-      # - 'src/**'
-      # - 'test/**'
+    paths-ignore:
+      - '**'
   workflow_call:
     inputs:
       push:
