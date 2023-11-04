@@ -4,8 +4,8 @@
 on:
   push:
     paths:
-      - 'src/**'
-      - 'test/**'
+      # - 'src/**'
+      # - 'test/**'
   workflow_call:
     inputs:
       push:
