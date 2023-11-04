@@ -4,6 +4,7 @@ on:
   push:
     branches: [sco]
     # paths: [swagstore/**]
+    paths-ignore: [src/**]
 
 env:
   commits: '[{"commitId": "${{ github.sha }}" }]'
