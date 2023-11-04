@@ -1,4 +1,4 @@
-name: Deploy Otel-demo
+name: Deploy otel-recommenationservice
  
 on: 
   push:
