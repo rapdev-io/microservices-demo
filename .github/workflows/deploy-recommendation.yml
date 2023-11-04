@@ -73,4 +73,4 @@ jobs:
        run: docker build -t recommendationservice:latest . -f src/recommendationservice/Dockerfile && docker tag recommendationservice:latest gcr.io/microservices-demo-401016/otel-recommendationservice:latest && docker push gcr.io/microservices-demo-401016/otel-recommendationservice:latest
        
      - name: Deploy
-       run: kubectl config set-context --current --namespace=otel-demo && cd kubernetes && kubectl apply -f opentelemetry-demo.yaml -n otel-demo
+       run: kubectl config set-context --current --namespace=otel-demo && cd kubernetes && kubectl delete deployment opentelemetry-demo-recommendationservice && kubectl apply -f opentelemetry-demo.yaml -n otel-demo && kubectl rollout restart deployment opentelemetry-demo-frontend
