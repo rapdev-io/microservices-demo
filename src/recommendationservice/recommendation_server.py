@@ -3,7 +3,6 @@
 # Copyright The OpenTelemetry Authors
 # SPDX-License-Identifier: Apache-2.0
 
-#test1
 # Python
 import os
 import random
@@ -157,7 +156,10 @@ if __name__ == "__main__":
     if ff_addr is not None:
         ff_channel = grpc.insecure_channel(ff_addr)
         feature_flag_stub = demo_pb2_grpc.FeatureFlagServiceStub(ff_channel)
-
+        
+    while True: # Add infinite loop so product catalogs are never retrieved
+        logger.error("Stuck in loop")
+        
     # Create gRPC server
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 
