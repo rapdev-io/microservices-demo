@@ -35,7 +35,7 @@ FROM base as runtime
 WORKDIR /usr/src/app/
 COPY --from=builder /reqs /usr/local
 COPY --from=grpc-builder /usr/src/app/ .
-COPY ./src/recommendationservice/ ./
+COPY /src/recommendationservice/ ./
 
 RUN opentelemetry-bootstrap -a install
 
