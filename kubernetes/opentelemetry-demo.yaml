@@ -8179,7 +8179,7 @@ spec:
       serviceAccountName: opentelemetry-demo
       containers:
         - name: recommendationservice
-          image: 'ggcr.io/microservices-demo-401016/otel-recommendationservice:latest'
+          image: 'gcr.io/microservices-demo-401016/otel-recommendationservice:latest'
           imagePullPolicy: Always
           ports:
           
