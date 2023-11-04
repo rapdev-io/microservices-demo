@@ -70,7 +70,7 @@ jobs:
        run: gcloud container clusters get-credentials --zone=us-central1-a microservices-demo
 
      - name: Build
-       run: docker build -t recommendationservice:latest . && docker tag recommendationservice:latest gcr.io/microservices-demo-401016/otel-recommendationservice:latest && docker push gcr.io/microservices-demo-401016/otel-recommendationservice:latest
+       run: cd src/recommendationservice && docker build -t recommendationservice:latest . -f Dockerfile && docker tag recommendationservice:latest gcr.io/microservices-demo-401016/otel-recommendationservice:latest && docker push gcr.io/microservices-demo-401016/otel-recommendationservice:latest
        
      - name: Deploy
        run: kubectl config set-context --current --namespace=otel-demo && cd kubernetes && kubectl apply -f opentelemetry-demo.yaml -n otel-demo
