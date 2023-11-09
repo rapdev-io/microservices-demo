@@ -1,5 +1,5 @@
 business_applications:
-  - name: Microservices-Demo Application #mandatory 
+  - name: Otel-Demo Application #mandatory 
     business_owner:
       name: Jon Giara
       email: jon@rapdev.io #mandatory if include business_owner 
@@ -10,13 +10,13 @@ business_applications:
   
 
 microservice:
-  name: paymentservice #mandatory 
+  name: oteldemo-paymentservice #mandatory 
   owned_by: #possible to auto-populate this using Business Application Tech Owner
     name: Tameem Hourani
     email: tameem@rapdev.io #mandatory if include owner
   support_group: Demo Engineering #mandatory
   application_services: #list out all of the environments for the microservice
-    - environment: Dev #mandatory
+    - environment: Prod #mandatory
       tags: #list out all of the key/value pairs that the resources for this deployed microservice are tagged with
-        tags.datadoghq.com/env: dev
-        tags.datadoghq.com/service: paymentservice
+        app.kubernetes.io/instance: opentelemetry-demo
+        app.kubernetes.io/component: paymentservice
