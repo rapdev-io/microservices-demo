@@ -2,9 +2,9 @@ name: Deploy Otel-demo
  
 on: 
   push:
-    branches: [sco]
+    #branches: [sco]
     # paths: [swagstore/**]
-    paths-ignore: [src/**]
+    #paths-ignore: [src/**]
 
 env:
   commits: '[{"commitId": "${{ github.sha }}" }]'
