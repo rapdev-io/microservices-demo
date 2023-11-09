@@ -169,6 +169,12 @@ data:
         endpoint: ${env.MY_POD_IP}:9464
         resource_to_telemetry_conversion:
           enabled: true
+      otlp/mm:
+        endpoint: ingest.lightstep.com:443
+        headers: "lightstep-access-token": "Qw9sHy68UKdA3jzi8Q9ZMuEoWpm7JjItOiTWFixJj8k/+aHK59pohCDv/DlQWaYDMRT7NfrYRuvHVY1+BeMAf5oQRdM7EZkNCSVbTCu7"
+      otlp/jvh:
+        endpoint: ingest.lightstep.com:443
+        headers: "lightstep-access-token": "gKT30iCewpr1LQOqhvldPaBAsuzWYwj6xIZ50GKpFx0EHrgCP7Cz5SFtSoyRPAk1XGAjUr1T3tSNGEBzOH8kTMcjJn7E+SAmIt/LcyiP"
     extensions:
       health_check: {}
       memory_ballast:
@@ -256,6 +262,8 @@ data:
         logs:
           exporters:
           - logging
+          - otlp/mm
+          - otlp/jvh
           processors:
           - k8sattributes
           - memory_limiter
@@ -266,6 +274,8 @@ data:
           exporters:
           - prometheus
           - logging
+          - otlp/mm
+          - otlp/jvh
           processors:
           - k8sattributes
           - memory_limiter
@@ -281,6 +291,8 @@ data:
           - otlp
           - logging
           - spanmetrics
+          - otlp/mm
+          - otlp/jvh
           processors:
           - k8sattributes
           - memory_limiter
