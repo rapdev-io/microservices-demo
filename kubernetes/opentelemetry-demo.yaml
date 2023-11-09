@@ -171,10 +171,12 @@ data:
           enabled: true
       otlp/mm:
         endpoint: ingest.lightstep.com:443
-        headers: "lightstep-access-token": "Qw9sHy68UKdA3jzi8Q9ZMuEoWpm7JjItOiTWFixJj8k/+aHK59pohCDv/DlQWaYDMRT7NfrYRuvHVY1+BeMAf5oQRdM7EZkNCSVbTCu7"
+        headers:
+          lightstep-access-token: Qw9sHy68UKdA3jzi8Q9ZMuEoWpm7JjItOiTWFixJj8k/+aHK59pohCDv/DlQWaYDMRT7NfrYRuvHVY1+BeMAf5oQRdM7EZkNCSVbTCu7
       otlp/jvh:
         endpoint: ingest.lightstep.com:443
-        headers: "lightstep-access-token": "gKT30iCewpr1LQOqhvldPaBAsuzWYwj6xIZ50GKpFx0EHrgCP7Cz5SFtSoyRPAk1XGAjUr1T3tSNGEBzOH8kTMcjJn7E+SAmIt/LcyiP"
+        headers:
+          lightstep-access-token: gKT30iCewpr1LQOqhvldPaBAsuzWYwj6xIZ50GKpFx0EHrgCP7Cz5SFtSoyRPAk1XGAjUr1T3tSNGEBzOH8kTMcjJn7E+SAmIt/LcyiP
     extensions:
       health_check: {}
       memory_ballast:
