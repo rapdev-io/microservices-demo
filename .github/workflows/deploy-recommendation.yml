@@ -40,7 +40,7 @@ jobs:
          devops-integration-user-name: ${{ secrets.SN_DEVOPS_USER }}
          devops-integration-user-password: ${{ secrets.SN_DEVOPS_PASSWORD }}
          instance-url: ${{ secrets.SN_INSTANCE_URL }}
-          tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
+         tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
          context-github: ${{ toJSON(github) }}
          job-name: 'Prod Deploy'
          change-request: '{"setCloseCode":"true","attributes":{"short_description":"Automated Software Deployment","description":"Automated Software Deployment.","assignment_group":"a715cd759f2002002920bde8132e7018","cmdb_ci":"d1c811ca1b757910de9785507e4bcbfe","implementation_plan":"Software update is tested and results can be found in Test Summaries Tab; When the change is approved the implementation happens automated by the CICD pipeline within the change planned start and end time window.","backout_plan":"When software fails in production, the previous software release will be re-deployed.","test_plan":"Testing if the software was successfully deployed"}}'
@@ -49,36 +49,38 @@ jobs:
          changeCreationTimeOut: '3600'
          abortOnChangeCreationFailure: true
          abortOnChangeStepTimeout: true
-     - run: echo completing
+         
+    - name: Change Complete
+      run: echo completing
       
-     - uses: actions/checkout@v3    
-     - uses: actions/checkout@v3
-       with:
-          ref: "${{ github.event.pull_request.head.ref }}"
-      
-     - name: Google Cloud Platform Authentication
-       id: auth
-       uses: google-github-actions/auth@v1
-       with:
-          create_credentials_file: "true"
-          workload_identity_provider: "${{ env.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
-          service_account: "${{ env.GCP_SERVICE_ACCOUNT }}"
+    - uses: actions/checkout@v3    
+    - uses: actions/checkout@v3
+      with:
+         ref: "${{ github.event.pull_request.head.ref }}"
+     
+    - name: Google Cloud Platform Authentication
+      id: auth
+      uses: google-github-actions/auth@v1
+      with:
+         create_credentials_file: "true"
+         workload_identity_provider: "${{ env.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
+         service_account: "${{ env.GCP_SERVICE_ACCOUNT }}"
 
-     - name: Docker auth
-       run: gcloud auth configure-docker --quiet
+    - name: Docker auth
+      run: gcloud auth configure-docker --quiet
 
-     - uses: simenandre/setup-gke-gcloud-auth-plugin@v1
-      
-     - uses: google-github-actions/get-gke-credentials@v1
-       with:
-          cluster_name: microservices-demo
-          location: us-central1-a
-      
-     - name: Get Creds
-       run: gcloud container clusters get-credentials --zone=us-central1-a microservices-demo
+    - uses: simenandre/setup-gke-gcloud-auth-plugin@v1
+     
+    - uses: google-github-actions/get-gke-credentials@v1
+      with:
+         cluster_name: microservices-demo
+         location: us-central1-a
+     
+    - name: Get Creds
+      run: gcloud container clusters get-credentials --zone=us-central1-a microservices-demo
 
-     - name: Build
-       run: docker build -t recommendationservice:latest . -f src/recommendationservice/Dockerfile && docker tag recommendationservice:latest gcr.io/microservices-demo-401016/otel-recommendationservice:latest && docker push gcr.io/microservices-demo-401016/otel-recommendationservice:latest
-       
-     - name: Deploy
-       run: kubectl config set-context --current --namespace=otel-demo && cd kubernetes && kubectl delete deployment opentelemetry-demo-recommendationservice && kubectl apply -f opentelemetry-demo.yaml -n otel-demo && kubectl rollout restart deployment opentelemetry-demo-frontend
+    - name: Build
+      run: docker build -t recommendationservice:latest . -f src/recommendationservice/Dockerfile && docker tag recommendationservice:latest gcr.io/microservices-demo-401016/otel-recommendationservice:latest && docker push gcr.io/microservices-demo-401016/otel-recommendationservice:latest
+      
+    - name: Deploy
+      run: kubectl config set-context --current --namespace=otel-demo && cd kubernetes && kubectl delete deployment opentelemetry-demo-recommendationservice && kubectl apply -f opentelemetry-demo.yaml -n otel-demo && kubectl rollout restart deployment opentelemetry-demo-frontend
