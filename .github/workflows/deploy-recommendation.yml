@@ -48,8 +48,8 @@ jobs:
          interval: '5'
          timeout: '3600'
          changeCreationTimeOut: '3600'
-         abortOnChangeCreationFailure: true
-         abortOnChangeStepTimeout: true
+         # abortOnChangeCreationFailure: true
+         # abortOnChangeStepTimeout: true
          
     - name: Change Complete
       run: echo completing
