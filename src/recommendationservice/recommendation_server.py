@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Python
-# Demo 1
+# Demo
 import os
 import random
 from concurrent import futures
