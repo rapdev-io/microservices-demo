@@ -3,7 +3,7 @@
 # Copyright The OpenTelemetry Authors
 # SPDX-License-Identifier: Apache-2.0
 
-# Python 3
+# Python 3 
 import os
 import random
 from concurrent import futures
