@@ -160,7 +160,6 @@ if __name__ == "__main__":
     # while True: # Add infinite loop so product catalogs are never retrieved at all
     #   logger.error("Stuck in loop") #log a quick message
     
-        
     # Create gRPC server
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 
