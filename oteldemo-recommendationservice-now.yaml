@@ -1,6 +1,6 @@
 #schema1
 business_applications:
-  - name: Otel-Demo Application #mandatory 
+  - name: Fake Application #mandatory 
     business_owner:
       name: Reese Boisse
       email: Reese@rapdev.io #mandatory if include business_owner 
