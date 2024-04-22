@@ -1,7 +1,7 @@
 #schema1
 business_applications:
   - name: Otel-Demo Application #mandatory 
-    business_owner:
+    business_owner: 
       name: Jon Giara 
       email: jon@rapdev.ioo #mandatory if include business_owner 
     tech_owner: 
