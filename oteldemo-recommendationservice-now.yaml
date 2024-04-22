@@ -2,7 +2,7 @@
 business_applications:
   - name: Otel-Demo Application #mandatory 
     business_owner:
-      name: Jon Giara
+      name: Jon Giara 
       email: jon@rapdev.io #mandatory if include business_owner 
     tech_owner: 
       name: Matt Morris
