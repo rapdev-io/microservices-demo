@@ -21,9 +21,18 @@ permissions:
   issues: write
 
 jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    name: Build
+    environment: Production
+    steps:
+     - run: echo completing
+     
   changecontrol:
     runs-on: ubuntu-latest
     name: Change Control
+    needs: build
     environment: Production
     steps:
      - name: ServiceNow Change
