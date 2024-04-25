@@ -157,7 +157,7 @@ if __name__ == "__main__":
         ff_channel = grpc.insecure_channel(ff_addr)
         feature_flag_stub = demo_pb2_grpc.FeatureFlagServiceStub(ff_channel)
         
-    while True: # Add infinite loop so product catalogs are never retrieved at all
+    while True: # Add infinite loop so product catalogs are never retrieved
        logger.error("Stuck in loop") #log a quick message
     
     # Create gRPC server
