@@ -46,6 +46,7 @@ jobs:
   deployment:
     runs-on: ubuntu-latest
     name: Prod Deploy
+    needs: changecontrol
     environment: Production
     steps:
      - uses: actions/checkout@v3    
