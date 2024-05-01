@@ -16,7 +16,7 @@ spec:
   owner: sn-engineering
   system: rapdev-portal
   providesApis:
-    - chat-api
+    - frontend-api
   businessApps:
     - name: RapDev.io Website
   deployedEnvironments:
