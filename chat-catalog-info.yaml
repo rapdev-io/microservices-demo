@@ -1,0 +1,34 @@
+apiVersion: backstage.io/v1alpha1 
+kind: Component
+metadata:
+  name: chat-service
+  description: The place to be, for great artists
+  supportGroup: Eng - ServiceNow
+  techOwner:
+    name: Jon Giara
+    email: jon@rapdev.io
+  links:
+      - title: Website
+        url: http://rapdev.io
+spec:
+  type: service
+  lifecycle: production
+  owner: sn-engineering
+  system: rapdev-portal
+  providesApis:
+    - chat-api
+  businessApps:
+    - name: RapDev.io Website
+  deployedEnvironments:
+    - name: production
+      tags:
+        service: chat-service
+        env: production
+    - name: test
+      tags:
+        service: chat-service
+        env: test
+    - name: development
+      tags:
+        service: chat-service
+        env: dev
