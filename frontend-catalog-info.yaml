@@ -1,7 +1,7 @@
 apiVersion: backstage.io/v1alpha1 
 kind: Component
 metadata:
-  name: chat-service
+  name: frontend
   description: The place to be, for great artists
   supportGroup: Eng - ServiceNow
   techOwner:
@@ -22,13 +22,13 @@ spec:
   deployedEnvironments:
     - name: production
       tags:
-        service: chat-service
+        app.kubernetes.io/component: frontend
         env: production
     - name: test
       tags:
-        service: chat-service
+        app.kubernetes.io/component: frontend
         env: test
     - name: development
       tags:
-        service: chat-service
+        app.kubernetes.io/component: frontend
         env: dev
