@@ -23,12 +23,12 @@ spec:
     - name: production
       tags:
         app.kubernetes.io/component: paymentservice
-        env: production
+        app.kubernetes.io/env: prod
     - name: test
       tags:
         app.kubernetes.io/component: paymentservice
-        env: test
+        app.kubernetes.io/env: test
     - name: development
       tags:
         app.kubernetes.io/component: paymentservice
-        env: dev
+        app.kubernetes.io/env: dev
