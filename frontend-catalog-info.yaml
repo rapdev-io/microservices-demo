@@ -23,7 +23,7 @@ spec:
     - name: production
       tags:
         app.kubernetes.io/component: frontend
-        env: production
+        env: prod
     - name: test
       tags:
         app.kubernetes.io/component: frontend
