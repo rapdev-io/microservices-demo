@@ -2,7 +2,7 @@ apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
   name: frontend
-  description: Component for frontend
+  description: Service for frontend
   supportGroup: Eng - ServiceNow
   techOwner:
     name: Jon Giara
