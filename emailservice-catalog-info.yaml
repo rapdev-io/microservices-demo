@@ -2,7 +2,7 @@ apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
   name: emailservice
-  description: The place to be, for great artists
+  description: Service for email
   supportGroup: Eng - ServiceNow
   techOwner:
     name: Jon Giara
