@@ -20,3 +20,7 @@ microservice:
       tags: #list out all of the key/value pairs that the resources for this deployed microservice are tagged with
         tags.datadoghq.com/env: dev
         tags.datadoghq.com/service: currencyservice
+    - environment: Prod #mandatory
+      tags: #list out all of the key/value pairs that the resources for this deployed microservice are tagged with
+        tags.datadoghq.com/env: prod
+        tags.datadoghq.com/service: currencyservice
