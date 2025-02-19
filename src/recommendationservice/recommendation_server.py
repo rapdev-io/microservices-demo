@@ -1,3 +1,4 @@
+#python
 #!/usr/bin/python
 
 # Copyright The OpenTelemetry Authors
@@ -157,8 +158,8 @@ if __name__ == "__main__":
         ff_channel = grpc.insecure_channel(ff_addr)
         feature_flag_stub = demo_pb2_grpc.FeatureFlagServiceStub(ff_channel)
         
-    while True: # Add infinite loop so product catalogs are never retrieved
-       logger.error("Stuck in loop") #log a quick message for troubleshooting
+    # while True: # Add infinite loop so product catalogs are never retrieved
+    #    logger.error("Stuck in loop") #log a quick message for troubleshooting
     
     # Create gRPC server
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
@@ -174,3 +175,4 @@ if __name__ == "__main__":
     server.start()
     logger.info(f'Recommendation service started, listening on port {port}')
     server.wait_for_termination()
+#
