@@ -24,3 +24,5 @@ microservice:
       tags: #list out all of the key/value pairs that the resources for this deployed microservice are tagged with
         tags.datadoghq.com/env: prod
         tags.datadoghq.com/service: recommendationservice
+      dependent_services: #microservices or bus apps that the current microservice depends on. These dependencies must pre-exist, or dependency update will partially fail.
+        - db
