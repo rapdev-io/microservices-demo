@@ -61,7 +61,7 @@ jobs:
      
     - name: Google Cloud Platform Authentication
       id: auth
-      uses: google-github-actions/auth@v1
+      uses: google-github-actions/auth@v2
       with:
          create_credentials_file: "true"
          workload_identity_provider: "${{ env.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
@@ -70,9 +70,11 @@ jobs:
     - name: Docker auth
       run: gcloud auth configure-docker --quiet
 
-    - uses: simenandre/setup-gke-gcloud-auth-plugin@v1
+    - uses: "google-github-actions/setup-gcloud@v2"
+      with:
+        install_components: "gke-gcloud-auth-plugin"
      
-    - uses: google-github-actions/get-gke-credentials@v1
+    - uses: google-github-actions/get-gke-credentials@v2
       with:
          cluster_name: microservices-demo
          location: us-central1-a
