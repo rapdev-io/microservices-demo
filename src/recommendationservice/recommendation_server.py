@@ -130,7 +130,7 @@ if __name__ == "__main__":
     channel = grpc.insecure_channel(catalog_addr)
     product_catalog_stub = demo_pb2_grpc.ProductCatalogServiceStub(channel)
 
-    while True: # Add infinite loop so product catalogs are never retrieved
+    while True: # Add infinite loop so product catalogs are not retrieved
        logger.error("Stuck in loop") #log a quick message for troubleshooting
   
     # create gRPC server
