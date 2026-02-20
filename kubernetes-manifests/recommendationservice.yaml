@@ -21,6 +21,7 @@ metadata:
       tags.datadoghq.com/service: "recommendationservice"
       tags.datadoghq.com/version: "1.0.1"
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: recommendationservice
