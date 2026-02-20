@@ -2,7 +2,7 @@ name: Deploy Swagstore Demo
 
 on:
   push:
-    branches: [main]
+    branches: [dd-refactor]
   workflow_dispatch:
     inputs:
       deploy_all:
