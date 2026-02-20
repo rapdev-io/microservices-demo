@@ -25,6 +25,7 @@ permissions:
   id-token: write
   contents: read
   issues: write
+  checks: write
 
 jobs:
 
@@ -166,11 +167,38 @@ jobs:
           docker build --platform linux/amd64 -t "$IMAGE" "$BUILD_CONTEXT"
           docker push "$IMAGE"
 
+  test:
+    runs-on: ubuntu-latest
+    name: Test
+    needs: build
+    if: needs.build.result == 'success'
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Run JUnit Tests
+        continue-on-error: true
+        run: bash tests/junit-tests.sh
+
+      - name: Publish Test Results
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: JUnit Test Results
+          path: test-results/results.xml
+          reporter: java-junit
+
   changecontrol:
     runs-on: ubuntu-latest
     name: Change Control
-    needs: build
-    if: needs.build.result == 'success'
+    needs: test
+    if: needs.test.result == 'success'
     environment: Production
     steps:
       - name: ServiceNow Change
