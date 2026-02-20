@@ -25,7 +25,6 @@ permissions:
   id-token: write
   contents: read
   issues: write
-  checks: write
 
 jobs:
 
@@ -190,12 +189,32 @@ jobs:
 
       - name: Publish Test Results
         if: always()
-        uses: dorny/test-reporter@v1
-        with:
-          name: JUnit Test Results
-          path: test-results/results.xml
-          reporter: java-junit
-          fail-on-error: false
+        run: |
+          echo "## JUnit Test Results" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          # Parse results from XML
+          TESTS=$(grep -oP 'tests="\K[^"]+' test-results/results.xml | head -1)
+          FAILURES=$(grep -oP 'failures="\K[^"]+' test-results/results.xml | head -1)
+          PASSED=$((TESTS - FAILURES))
+
+          echo "| Status | Count |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|--------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Passed | $PASSED |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Failed | $FAILURES |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Total  | $TESTS |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          # List individual test cases
+          echo "### Test Cases" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          grep -oP 'name="\K[^"]+' test-results/results.xml | tail -n +2 | while read -r name; do
+            if grep -q "testcase name=\"$name\".*<failure" test-results/results.xml; then
+              echo "- :x: $name" >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "- :white_check_mark: $name" >> "$GITHUB_STEP_SUMMARY"
+            fi
+          done
 
   changecontrol:
     runs-on: ubuntu-latest
