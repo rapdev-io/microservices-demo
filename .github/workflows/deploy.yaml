@@ -1,9 +1,15 @@
 name: Deploy Swagstore Demo
- 
-on: 
+
+on:
   push:
     branches: [main]
-    # paths: [swagstore/**]
+  workflow_dispatch:
+    inputs:
+      deploy_all:
+        description: "Deploy all services (bypass change detection)"
+        required: false
+        type: boolean
+        default: false
 
 env:
   commits: '[{"commitId": "${{ github.sha }}" }]'
@@ -22,22 +28,154 @@ permissions:
 
 jobs:
 
+  detect-changes:
+    runs-on: ubuntu-latest
+    name: Detect Changes
+    outputs:
+      changed_services: ${{ steps.changes.outputs.changed_services }}
+      has_changes: ${{ steps.changes.outputs.has_changes }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed services
+        id: changes
+        run: |
+          ALL_SERVICES='["adservice","cartservice","checkoutservice","currencyservice","emailservice","frontend","loadgenerator","paymentservice","productcatalogservice","recommendationservice","shippingservice"]'
+
+          # Manual deploy_all trigger
+          if [[ "${{ inputs.deploy_all }}" == "true" ]]; then
+            echo "Deploy all requested via workflow_dispatch"
+            echo "changed_services=$ALL_SERVICES" >> "$GITHUB_OUTPUT"
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Determine base commit for diff
+          BEFORE="${{ github.event.before }}"
+          if [[ -z "$BEFORE" || "$BEFORE" == "0000000000000000000000000000000000000000" ]]; then
+            echo "No valid before SHA, using HEAD~1"
+            BEFORE="HEAD~1"
+          fi
+
+          echo "Comparing $BEFORE..HEAD"
+          CHANGED_FILES=$(git diff --name-only "$BEFORE"..HEAD || true)
+
+          if [[ -z "$CHANGED_FILES" ]]; then
+            echo "No changed files detected, deploying all as fallback"
+            echo "changed_services=$ALL_SERVICES" >> "$GITHUB_OUTPUT"
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+
+          declare -A SERVICES_MAP
+
+          while IFS= read -r file; do
+            # src/<service>/** → that service
+            if [[ "$file" =~ ^src/([^/]+)/ ]]; then
+              svc="${BASH_REMATCH[1]}"
+              SERVICES_MAP["$svc"]=1
+            fi
+
+            # pb/demo.proto → proto-dependent services
+            if [[ "$file" == "pb/demo.proto" ]]; then
+              for svc in adservice checkoutservice emailservice frontend productcatalogservice recommendationservice shippingservice; do
+                SERVICES_MAP["$svc"]=1
+              done
+            fi
+
+            # pb/grpc/health/** → currencyservice, paymentservice
+            if [[ "$file" =~ ^pb/grpc/health/ ]]; then
+              SERVICES_MAP["currencyservice"]=1
+              SERVICES_MAP["paymentservice"]=1
+            fi
+
+            # kubernetes-manifests/<service>.yaml → that service
+            if [[ "$file" =~ ^kubernetes-manifests/([^/]+)\.yaml$ ]]; then
+              svc="${BASH_REMATCH[1]}"
+              # Only map known services (skip kustomization.yaml, redis.yaml, etc.)
+              case "$svc" in
+                adservice|cartservice|checkoutservice|currencyservice|emailservice|frontend|loadgenerator|paymentservice|productcatalogservice|recommendationservice|shippingservice)
+                  SERVICES_MAP["$svc"]=1
+                  ;;
+              esac
+            fi
+          done <<< "$CHANGED_FILES"
+
+          # Build JSON array
+          CHANGED_LIST="["
+          first=true
+          for svc in "${!SERVICES_MAP[@]}"; do
+            if [[ "$first" == "true" ]]; then
+              first=false
+            else
+              CHANGED_LIST+=","
+            fi
+            CHANGED_LIST+="\"$svc\""
+          done
+          CHANGED_LIST+="]"
+
+          if [[ "${#SERVICES_MAP[@]}" -eq 0 ]]; then
+            echo "No service changes detected"
+            echo "changed_services=[]" >> "$GITHUB_OUTPUT"
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Changed services: $CHANGED_LIST"
+            echo "changed_services=$CHANGED_LIST" >> "$GITHUB_OUTPUT"
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          fi
+
   build:
     runs-on: ubuntu-latest
     name: Build
+    needs: detect-changes
+    if: needs.detect-changes.outputs.has_changes == 'true'
     environment: Production
+    strategy:
+      matrix:
+        service: ${{ fromJson(needs.detect-changes.outputs.changed_services) }}
     steps:
-     - run: echo completing
-     
+      - uses: actions/checkout@v3
+
+      - name: Google Cloud Platform Authentication
+        id: auth
+        uses: google-github-actions/auth@v1
+        with:
+          create_credentials_file: "true"
+          workload_identity_provider: "${{ env.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
+          service_account: "${{ env.GCP_SERVICE_ACCOUNT }}"
+
+      - name: Docker auth
+        run: gcloud auth configure-docker --quiet
+
+      - name: Build and push ${{ matrix.service }}
+        run: |
+          IMAGE="gcr.io/${{ env.GCP_PROJECT }}/${{ matrix.service }}:${{ github.sha }}"
+
+          # cartservice has a nested build context
+          if [[ "${{ matrix.service }}" == "cartservice" ]]; then
+            BUILD_CONTEXT="src/cartservice/src"
+          else
+            BUILD_CONTEXT="src/${{ matrix.service }}"
+          fi
+
+          docker build --platform linux/amd64 -t "$IMAGE" "$BUILD_CONTEXT"
+          docker push "$IMAGE"
+
   changecontrol:
     runs-on: ubuntu-latest
     name: Change Control
     needs: build
+    if: needs.build.result == 'success'
     environment: Production
     steps:
-     - name: ServiceNow Change
-       uses: ServiceNow/servicenow-devops-change@v2.0.0
-       with:
+      - name: ServiceNow Change
+        uses: ServiceNow/servicenow-devops-change@v2.0.0
+        with:
           devops-integration-user-name: ${{ secrets.SN_DEVOPS_USER }}
           devops-integration-user-password: ${{ secrets.SN_DEVOPS_PASSWORD }}
           instance-url: ${{ secrets.SN_INSTANCE_URL }}
@@ -50,42 +188,56 @@ jobs:
           changeCreationTimeOut: '3600'
           abortOnChangeCreationFailure: true
           abortOnChangeStepTimeout: true
-     - run: echo completing
-  
+
   deployment:
     runs-on: ubuntu-latest
     name: Prod Deploy
-    needs: changecontrol
+    needs: [detect-changes, changecontrol]
+    if: needs.changecontrol.result == 'success'
     environment: Production
     steps:
-     - uses: actions/checkout@v3    
-     - uses: actions/checkout@v3
-       with:
-          ref: "${{ github.event.pull_request.head.ref }}"
-      
-     - name: Google Cloud Platform Authentication
-       id: auth
-       uses: google-github-actions/auth@v1
-       with:
+      - uses: actions/checkout@v3
+
+      - name: Google Cloud Platform Authentication
+        id: auth
+        uses: google-github-actions/auth@v1
+        with:
           create_credentials_file: "true"
           workload_identity_provider: "${{ env.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
           service_account: "${{ env.GCP_SERVICE_ACCOUNT }}"
 
-     - name: Docker auth
-       run: gcloud auth configure-docker --quiet
+      - uses: simenandre/setup-gke-gcloud-auth-plugin@v1
 
-     - uses: simenandre/setup-gke-gcloud-auth-plugin@v1
-      
-     - uses: google-github-actions/get-gke-credentials@v1
-       with:
+      - uses: google-github-actions/get-gke-credentials@v1
+        with:
           cluster_name: microservices-demo
           location: us-central1-a
-      
-     - name: Get Creds
-       run: gcloud container clusters get-credentials --zone=us-central1-a microservices-demo
 
-     - name: Install Skaffold
-       run: curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64 && sudo install skaffold /usr/local/bin/
+      - name: Deploy changed services
+        run: |
+          CHANGED='${{ needs.detect-changes.outputs.changed_services }}'
+          SERVICES=$(echo "$CHANGED" | jq -r '.[]')
 
-     - name: Deploy
-       run: skaffold run -f=skaffold.yaml --default-repo=gcr.io/${{ env.GCP_PROJECT }} --platform=linux/amd64
+          for SERVICE in $SERVICES; do
+            echo "========================================="
+            echo "Deploying $SERVICE"
+            echo "========================================="
+
+            IMAGE="gcr.io/${{ env.GCP_PROJECT }}/${SERVICE}:${{ github.sha }}"
+
+            # Apply the manifest (picks up any manifest changes)
+            kubectl apply -f "kubernetes-manifests/${SERVICE}.yaml"
+
+            # Determine container name
+            if [[ "$SERVICE" == "loadgenerator" ]]; then
+              CONTAINER="main"
+            else
+              CONTAINER="server"
+            fi
+
+            # Update the image to the newly built GCR image
+            kubectl set image "deployment/${SERVICE}" "${CONTAINER}=${IMAGE}"
+
+            # Wait for rollout
+            kubectl rollout status "deployment/${SERVICE}" --timeout=300s
+          done
