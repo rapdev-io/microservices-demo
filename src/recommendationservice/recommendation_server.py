@@ -131,8 +131,7 @@ if __name__ == "__main__":
     product_catalog_stub = demo_pb2_grpc.ProductCatalogServiceStub(channel)
 
     # while True: # Add infinite loop so product catalogs are never retrieved
-    #    logger.error("Stuck in loop") #log a quick message for troubleshooting
-  
+    #    logger.error("Stuck in loop") #log a quick message for troubleshooting  
 
     # create gRPC server
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
