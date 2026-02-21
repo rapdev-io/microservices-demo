@@ -239,7 +239,7 @@ jobs:
           tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
           context-github: ${{ toJSON(github) }}
           job-name: 'Test'
-          xml-report-filename: test-results/results.xml
+          xml-report-filename: test-results/
 
   changecontrol:
     runs-on: ubuntu-latest
