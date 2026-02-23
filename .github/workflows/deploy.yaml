@@ -181,18 +181,18 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
 
-      - name: ServiceNow DevOps Sonar Scan Results
-        if: always()
-        uses: ServiceNow/servicenow-devops-sonar@v2.0.0
-        with:
-          devops-integration-user-name: ${{ secrets.SN_DEVOPS_USER }}
-          devops-integration-user-password: ${{ secrets.SN_DEVOPS_PASSWORD }}
-          instance-url: ${{ secrets.SN_INSTANCE_URL }}
-          tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
-          context-github: ${{ toJSON(github) }}
-          job-name: 'Test'
-          sonar-host-url: https://sonarcloud.io
-          sonar-project-key: rapdev-io_microservices-demo
+      # - name: ServiceNow DevOps Sonar Scan Results
+      #   if: always()
+      #   uses: ServiceNow/servicenow-devops-sonar@v2.0.0
+      #   with:
+      #     devops-integration-user-name: ${{ secrets.SN_DEVOPS_USER }}
+      #     devops-integration-user-password: ${{ secrets.SN_DEVOPS_PASSWORD }}
+      #     instance-url: ${{ secrets.SN_INSTANCE_URL }}
+      #     tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
+      #     context-github: ${{ toJSON(github) }}
+      #     job-name: 'Test'
+      #     sonar-host-url: https://sonarcloud.io
+      #     sonar-project-key: rapdev-io_microservices-demo
 
       - name: Run JUnit Tests
         continue-on-error: true
