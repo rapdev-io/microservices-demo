@@ -169,8 +169,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     name: Test
-    needs: build
-    if: needs.build.result == 'success'
+    needs: detect-changes
+    if: needs.detect-changes.outputs.has_changes == 'true'
     steps:
       - uses: actions/checkout@v3
 
@@ -242,8 +242,8 @@ jobs:
   changecontrol:
     runs-on: ubuntu-latest
     name: Change Control
-    needs: test
-    if: needs.test.result == 'success'
+    needs: [build, test]
+    if: needs.build.result == 'success' && needs.test.result == 'success'
     environment: Production
     steps:
       - name: ServiceNow Change
