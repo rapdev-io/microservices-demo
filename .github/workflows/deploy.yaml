@@ -314,3 +314,10 @@ jobs:
             # Wait for rollout
             kubectl rollout status "deployment/${SERVICE}" --timeout=300s
           done
+
+          # Restart frontend to refresh gRPC connections after deployment
+          echo "========================================="
+          echo "Restarting frontend"
+          echo "========================================="
+          kubectl rollout restart deployment/frontend
+          kubectl rollout status deployment/frontend --timeout=300s
