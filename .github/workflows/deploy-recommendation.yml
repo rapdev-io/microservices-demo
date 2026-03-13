@@ -36,7 +36,7 @@ jobs:
     environment: Production
     steps:
     - name: ServiceNow Change
-      uses: ServiceNow/servicenow-devops-change@v2.0.0
+      uses: ServiceNow/servicenow-devops-change@v6.3.0
       with:
          devops-integration-user-name: ${{ secrets.SN_DEVOPS_USER }}
          devops-integration-user-password: ${{ secrets.SN_DEVOPS_PASSWORD }}
