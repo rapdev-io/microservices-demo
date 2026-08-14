@@ -58,31 +58,39 @@ jobs:
     needs: changecontrol
     environment: Production
     steps:
-     - uses: actions/checkout@v3    
-     - uses: actions/checkout@v3
-       with:
-          ref: "${{ github.event.pull_request.head.ref }}"
-      
+     - uses: actions/checkout@v4
+
      - name: Google Cloud Platform Authentication
        id: auth
-       uses: google-github-actions/auth@v1
+       uses: google-github-actions/auth@v2
        with:
           create_credentials_file: "true"
           workload_identity_provider: "${{ env.GCP_WORKLOAD_IDENTITY_PROVIDER }}"
           service_account: "${{ env.GCP_SERVICE_ACCOUNT }}"
 
+     # Installs gcloud AND runs `gcloud auth login --cred-file` against the
+     # credentials file written by the auth step above. Without this, gcloud has
+     # no *active account* -- only Application Default Credentials -- and
+     # anything that shells out to `gcloud config config-helper` fails.
+     - name: Set up Cloud SDK
+       uses: google-github-actions/setup-gcloud@v2
+       with:
+          install_components: gke-gcloud-auth-plugin
+
      - name: Docker auth
        run: gcloud auth configure-docker --quiet
 
-     - uses: simenandre/setup-gke-gcloud-auth-plugin@v1
-      
-     - uses: google-github-actions/get-gke-credentials@v1
+     # Writes a kubeconfig with a short-lived access token embedded
+     # (use_auth_provider defaults to false), so kubectl/skaffold do not depend
+     # on the auth plugin at all. Do NOT follow this with
+     # `gcloud container clusters get-credentials` -- that overwrites this
+     # kubeconfig with an exec/auth-plugin one.
+     - name: Get GKE credentials
+       uses: google-github-actions/get-gke-credentials@v2
        with:
           cluster_name: microservices-demo
           location: us-central1-a
-      
-     - name: Get Creds
-       run: gcloud container clusters get-credentials --zone=us-central1-a microservices-demo
+          project_id: "${{ env.GCP_PROJECT }}"
 
      - name: Install Skaffold
        run: curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64 && sudo install skaffold /usr/local/bin/
